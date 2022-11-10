@@ -26,6 +26,8 @@ class Game:
         self.death_count = 0
 
     def run(self):
+        self.points = 0
+        self.player_heart_manager.heart_count = 4
         self.obstacle_manager.reset_obstacles(self)
         self.player_heart_manager.reduce_heart()
         self.playing = True
@@ -110,8 +112,8 @@ class Game:
             self.screen.blit (score, score_rect)
             self.screen.blit ( text, text_rect)
             self.screen.blit (death, death_rect)
-            ###self.game_speed = 0
         self.screen.blit(RUNNING[0],(half_screen_width-20, half_screen_height-140))
+
     def show_menu(self):
         self.running = True
 
