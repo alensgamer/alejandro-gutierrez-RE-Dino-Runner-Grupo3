@@ -1,6 +1,7 @@
 import pygame
 from dino_runner.components import text_utils
 from dino_runner.components.dinosour import Dinosour
+from dino_runner.components.power_ups.power_up_manager import PowerUpManager
 from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, RUNNING
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
 from dino_runner.components.player_hearts.player_heart_manager import PlayerHeartManager
@@ -24,10 +25,10 @@ class Game:
         self.points = 0
         self.running = True
         self.death_count = 0
+        self.power_up_manager = PowerUpManager()
 
     def run(self):
-        self.points = 0
-        self.player_heart_manager.heart_count = 4
+        
         self.obstacle_manager.reset_obstacles(self)
         self.player_heart_manager.reduce_heart()
         self.playing = True
@@ -35,6 +36,10 @@ class Game:
             self.events()
             self.update()
             self.draw()
+    def create_components(self):
+        self.points = 0
+        self.game_speed = 20
+        self.player_heart_manager.heart_count = 4
     
     def execute(self):
         while self.running:
@@ -52,6 +57,7 @@ class Game:
         user_input = pygame.key.get_pressed()
         self.player.update(user_input)
         self.obstacle_manager.update(self)
+        self.power_up_manager.update(self.points, self.game_speed, self.player)
         
 
 
@@ -83,7 +89,10 @@ class Game:
             self.game_speed += 1
         text, text_rect = text_utils.get_score_element(self.points)
         self.screen.blit(text, text_rect)
-    
+        self.player.check_invicibility(self.screen)
+
+
+
     def handle_key_events_on_menu(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
