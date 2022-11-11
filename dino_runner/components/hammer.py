@@ -6,7 +6,7 @@ class Hammer(Sprite):
         self.image = HAMMER
         self.rect = self.image.get_rect()
         self.rect.bottom = y
-        self.rect.conterx = x
+        self.rect.centerx = x
         self.speedy = 10
 
     def draw(self, screen):

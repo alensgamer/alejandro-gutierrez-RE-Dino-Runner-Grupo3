@@ -2,10 +2,10 @@ import pygame
 from dino_runner.components import text_utils
 from dino_runner.components.dinosour import Dinosour
 from dino_runner.components.power_ups.power_up_manager import PowerUpManager
-from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, RUNNING
+from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, BG2, HOPE, SOUNDS
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
 from dino_runner.components.player_hearts.player_heart_manager import PlayerHeartManager
-
+pygame.mixer.init()
 
 class Game:
     def __init__(self) :
@@ -28,6 +28,7 @@ class Game:
         self.power_up_manager = PowerUpManager()
 
     def run(self):
+        self.create_components()
         
         self.obstacle_manager.reset_obstacles(self)
         self.player_heart_manager.reduce_heart()
@@ -36,10 +37,13 @@ class Game:
             self.events()
             self.update()
             self.draw()
+            
     def create_components(self):
         self.points = 0
-        self.game_speed = 20
+        self.game_speed = 15
         self.player_heart_manager.heart_count = 4
+        self.power_up_manager.reset_power_ups()
+        
     
     def execute(self):
         while self.running:
@@ -52,6 +56,7 @@ class Game:
                 self.playing = False
                 self.running = False
         self.screen.fill((255,255,255))
+
 
     def update(self):
         user_input = pygame.key.get_pressed()
@@ -68,14 +73,19 @@ class Game:
         self.draw_background()
         self.player.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
+##
         self.player_heart_manager.draw(self.screen)
-
+        self.power_up_manager.draw(self.screen)
         pygame.display.update()
         pygame.display.flip()
 
 
     def draw_background(self):
         image_width = BG.get_width()
+        self.screen.blit(BG2[0],(0,0))
+        self.screen.blit(BG2[1],(0,400))
+            
+        
         self.screen.blit(BG, (self.x_pos_bg, self.y_pos_bg ))
         self.screen.blit(BG, (image_width + self.x_pos_bg, self.y_pos_bg ))
         if self.x_pos_bg <= -image_width:
@@ -113,6 +123,7 @@ class Game:
             text,text_rect = text_utils.get_centred_message("press any key to start")
             self.screen.blit(text, text_rect)
         elif self.death_count > 0 :
+            
             text,text_rect = text_utils.get_centred_message("press any key to Restart")
             ##aqui ocupo hacer esto
             score, score_rect = text_utils.get_centred_message("Your score:" +str(self.points), height=half_screen_height + 50)
@@ -121,8 +132,10 @@ class Game:
             self.screen.blit (score, score_rect)
             self.screen.blit ( text, text_rect)
             self.screen.blit (death, death_rect)
-        self.screen.blit(RUNNING[0],(half_screen_width-20, half_screen_height-140))
-
+            SOUNDS[3].play()
+        self.screen.blit(HOPE[0],(half_screen_width-20, half_screen_height-140))
+        
+        
     def show_menu(self):
         self.running = True
 

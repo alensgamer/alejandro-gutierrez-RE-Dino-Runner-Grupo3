@@ -11,10 +11,13 @@ RUNNING_HAMMER,
 JUMPING_HAMMER,
 DEFAULT_TYPE,
 SHIELD_TYPE,
-HAMMER_TYPE
+HAMMER_TYPE,
+SOUNDS
 
 )
+pygame.mixer.init()
 from pygame.sprite import Sprite
+from dino_runner.components.hammer import Hammer
 
 class Dinosour(Sprite):
     X_POS = 80  
@@ -29,7 +32,7 @@ class Dinosour(Sprite):
         self.run_image = {DEFAULT_TYPE: RUNNING, SHIELD_TYPE: RUNNING_SHIELD, HAMMER_TYPE: RUNNING_HAMMER}
         self.jump_image = {DEFAULT_TYPE: JUMPING, SHIELD_TYPE: JUMPING_SHIELD, HAMMER_TYPE: JUMPING_HAMMER}
         self.type = DEFAULT_TYPE
-        self.image = self.run_image[self.type[0]]
+        self.image = self.run_image[self.type][0]
 
 
 
@@ -57,6 +60,9 @@ class Dinosour(Sprite):
         self.has_powerup = False
         self.shield = False
         self.show_text = False
+        self.shield_time_up = 0
+        self.hammer = None
+        self.hammer_enabled = 0
 
 
     def update(self, user_input):
@@ -72,6 +78,8 @@ class Dinosour(Sprite):
             self.dino_duck = True
             self.dino_jump = False
         elif user_input[pygame.K_UP] and not self.dino_jump:
+            
+            SOUNDS[0].play()
             self.dino_run = False
             self.dino_duck = False
             self.dino_jump = True
@@ -87,11 +95,13 @@ class Dinosour(Sprite):
 
         if self.hammer_enabled > 0 and user_input[pygame.K_SPACE]:
             self.hammer = Hammer(self.dino_rect.x + 100, self.dino_rect.y + 50)
-            self.hammer_enabled = max(self.hammer_enabled - 1, 0)
-            if self.hammer_enabled == 0:
+            self.hammer_enabled = max(self.hammer_enabled - 1, 0)##
+            self.update_to_default(HAMMER_TYPE)
+            if self.hammer_enabled > 0:
                 self.update_to_default(HAMMER_TYPE)
+                self.hammer_enabled = 0
         if self.hammer:
-            self.hammer.update()
+            self.hammer.update()##
 
     def draw(self, screen):
         screen.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
@@ -102,7 +112,8 @@ class Dinosour(Sprite):
             time_to_show = round((self.shield_time_up - pygame.time.get_ticks())/ 1000, 2)
             if time_to_show >= 0:
                 if self.show_text:
-                    fond =  pygame.font.Font("freesansblod.ttf", 18)
+                    
+                    fond =  pygame.font.Font("freesansbold.ttf", 18)
                     text = fond.render(f"Shied enabled for {time_to_show}", True, (0,0,0))
                     textRect = text.get_rect()
                     textRect.center = (500, 40)
@@ -126,7 +137,7 @@ class Dinosour(Sprite):
 
         self.step_index += 1
     def duck(self):
-        self.image = self.run_image[self.type][self.step_index // 5]
+        self.image = self.duck_image[self.type][self.step_index // 5]
         self.dino_rect = self.image.get_rect()
         self.dino_rect.x = self.X_POS
         self.dino_rect.y = self.Y_POS_DUCK
@@ -135,9 +146,9 @@ class Dinosour(Sprite):
 
 
     def jump(self):
-        self.image = JUMPING
+        self.image = self.jump_image[self.type]
         if self.dino_jump:
-
+            
             self.dino_rect.y -= self.jump_vel * 4
             self.jump_vel -= 0.8
         if self.jump_vel < -self.JUMP_VEL:
