@@ -19,7 +19,7 @@ class ObstacleManager:
         for obstacle in self.obstacles:
             obstacle.update(game.game_speed ,self.obstacles)
 
-            if game.player.hamer is not None and game.player.hammer.rect.colliderect(obstacle.rect):
+            if game.player.hammer is not None and game.player.hammer.rect.colliderect(obstacle.rect):
                 game.player.hammer.kill()
                 self.obstacles.pop()
             else:
@@ -36,8 +36,8 @@ class ObstacleManager:
                     if game.player_heart_manager.heart_count > 0:
                         game.player.shield = True
                         game.player.show_text = False
-
-                        pass
+                        start_time = pygame.time.get_ticks()
+                        game.player.shield_time_up = start_time + 1000
                     else:
                         pygame.time.delay(500)
                         game.playing = False

@@ -28,7 +28,7 @@ class Game:
         self.power_up_manager = PowerUpManager()
 
     def run(self):
-        
+        self.create_components()
         self.obstacle_manager.reset_obstacles(self)
         self.player_heart_manager.reduce_heart()
         self.playing = True
@@ -64,7 +64,7 @@ class Game:
     def draw(self):
         self.score()##mostrar El Score en la pantalla
         self.clock.tick(FPS)
-        
+        self.power_up_manager.draw(self.screen)
         self.draw_background()
         self.player.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
